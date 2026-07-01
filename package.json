@@ -9,9 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "jsbarcode": "^3.11.5"
-  },
-  "devDependencies": {
+    "jsbarcode": "^3.11.5",
     "vite": "^5.0.0"
-  }
+  },
+  "devDependencies": {}
 }
