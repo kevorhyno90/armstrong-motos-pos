@@ -3,11 +3,6 @@ const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './src/styles.css',
-  './src/app.js',
-  './src/db.js',
-  './src/barcode.js',
-  './src/jsbarcode.min.js',
   './assets/logo.png',
   'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap'
 ];
