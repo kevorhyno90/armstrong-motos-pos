@@ -1,4 +1,4 @@
-const CACHE_NAME = 'armstrong-motos-pos-v1';
+const CACHE_NAME = 'armstrong-motos-pos-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -6,6 +6,10 @@ const ASSETS_TO_CACHE = [
   '/assets/logo.png',
   '/jsbarcode.min.js',
   '/html2pdf.bundle.min.js',
+  '/src/styles.css',
+  '/src/app.js',
+  '/src/db.js',
+  '/src/barcode.js',
   'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap'
 ];
 
