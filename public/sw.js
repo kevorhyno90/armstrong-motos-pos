@@ -1,9 +1,11 @@
 const CACHE_NAME = 'armstrong-motos-pos-v1';
 const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json',
-  './assets/logo.png',
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/assets/logo.png',
+  '/jsbarcode.min.js',
+  '/html2pdf.bundle.min.js',
   'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap'
 ];
 
