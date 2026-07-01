@@ -1,0 +1,17 @@
+{
+  "name": "armstrong-motos-pos",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "jsbarcode": "^3.11.5"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Armstrong Motos - POS & Inventory System</title>
+  
+  <!-- SEO & PWA Meta -->
+  <meta name="description" content="Comprehensive POS & Inventory management system for Armstrong Motos spare parts shop. Works offline, generates barcodes, logs sales, and captures webcam photos.">
+  <meta name="theme-color" content="#090d16">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%22.9em%22 font-size=%2260%22 font-weight=%22bold%22 fill=%22%23ffffff%22 x=%2220%22>A</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23f97316%22/><text y=%22.9em%22 font-size=%2260%22 font-weight=%22bold%22 fill=%22%23ffffff%22 x=%2220%22>A</text></svg>">
+
+  <!-- Style Sheets -->
+  <link rel="stylesheet" href="./src/styles.css">
+
+  <!-- Local Barcode & PDF Scripts -->
+  <script src="./src/jsbarcode.min.js"></script>
+  <script src="./src/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  
+  <div id="app-container">
+    
+    <!-- Sidebar Navigation Drawer -->
+    <aside>
+      <div class="brand-section">
+        <div class="brand-logo">A</div>
+        <div class="brand-name-container">
+          <span class="brand-name">Armstrong Motos</span>
+          <span class="brand-tagline">POS & Spares</span>
+        </div>
+      </div>
+      
+      <nav>
+        <ul class="nav-links">
+          <li class="nav-item active" data-screen="pos">
+            <button id="nav-pos-btn">
+              <svg viewBox="0 0 24 24"><path d="M2 2h20v4H2zM3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6M9 10h6m-6 4h6m-6 4h6"/></svg>
+              <span>POS Cashier</span>
+            </button>
+          </li>
+          <li class="nav-item" data-screen="inventory">
+            <button id="nav-inventory-btn">
+              <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              <span>Inventory</span>
+            </button>
+          </li>
+          <li class="nav-item" data-screen="sales">
+            <button id="nav-sales-btn">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8m8 4H8m3-8H8"/></svg>
+              <span>Sales Log</span>
+            </button>
+          </li>
+          <li class="nav-item" data-screen="dashboard">
+            <button id="nav-dashboard-btn">
+              <svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              <span>Dashboard</span>
+            </button>
+          </li>
+          <li class="nav-item" data-screen="settings">
+            <button id="nav-settings-btn">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span>Settings</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button id="pwa-install" class="pwa-install-btn">
+          <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 5v14M5 12h14" stroke="white" stroke-width="2" fill="none"/></svg>
+          Install Offline App
+        </button>
+        <div>Armstrong Motos v1.0.0</div>
+        <div>IndexedDB Local Base</div>
+      </div>
+    </aside>
+    
+    <!-- Main Shell Area -->
+    <main>
+      
+      <!-- Top Status Info Header -->
+      <header>
+        <div class="header-title" id="active-screen-title">POS Cashier</div>
+        <div class="system-status">
+          <div id="low-stock-alert" class="status-badge alert-pill" style="display: none;">
+            <span>0 Spares Low Stock</span>
+          </div>
+          <div id="online-status" class="status-badge status-online">
+            <span>Online</span>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Content View Switcher Frame -->
+      <div class="content-frame">
+        
+        <!-- ============ TAB 1: POS SCREEN ============ -->
+        <div id="screen-pos" class="screen-view active">
+          
+          <!-- Catalog Panel -->
+          <div class="catalog-panel">
+            <div class="catalog-controls">
+              <div class="search-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="pos-search" class="search-input" placeholder="Search by SKU, Barcode, or Product Name...">
+              </div>
+              <select id="pos-category-filter" class="category-filter">
+                <option value="ALL">All Categories</option>
+              </select>
+              <select id="pos-model-filter" class="category-filter">
+                <option value="ALL">All Bike Models</option>
+                <option value="Bajaj Boxer 100">Bajaj Boxer 100</option>
+                <option value="Bajaj Boxer 150">Bajaj Boxer 150</option>
+                <option value="Bajaj Boxer 100 / 150">Bajaj Boxer 100 / 150</option>
+              </select>
+            </div>
+            
+            <div class="products-grid" id="pos-products-grid">
+              <!-- Dynamically populated card items -->
+            </div>
+          </div>
+          
+          <!-- Cart Panel -->
+          <div class="cart-panel">
+            <div class="cart-header">
+              <div class="cart-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                <span>Current Cart</span>
+                <span id="cart-count" class="cart-count-badge">0</span>
+              </div>
+              <button id="clear-cart-btn" class="clear-cart-btn">
+                Clear
+              </button>
+            </div>
+            
+            <div class="cart-items" id="cart-items-container">
+              <!-- Dynamically populated cart items -->
+            </div>
+            
+            <div class="cart-footer">
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="cart-subtotal">Ksh 0.00</span>
+              </div>
+              <div class="checkout-inputs">
+                <div class="checkout-input-group">
+                  <label for="cart-discount">Discount</label>
+                  <input type="number" id="cart-discount" class="checkout-field" placeholder="Ksh / %" min="0" value="0">
+                </div>
+                <div class="checkout-input-group">
+                  <label for="cart-pay-method">Pay Method</label>
+                  <select id="cart-pay-method" class="checkout-field">
+                    <option value="Cash">Cash</option>
+                    <option value="M-Pesa">M-Pesa</option>
+                    <option value="Card">Card / Visa</option>
+                  </select>
+                </div>
+              </div>
+              <div class="checkout-inputs">
+                <div class="checkout-input-group" style="grid-column: span 2;">
+                  <label for="cart-amount-paid">Amount Tendered</label>
+                  <input type="number" id="cart-amount-paid" class="checkout-field" placeholder="Ksh Paid Amount" min="0">
+                </div>
+              </div>
+              <div class="summary-row" id="cart-change-row" style="display: none; padding: 0.25rem 0;">
+                <span>Change Due</span>
+                <span id="cart-change-value" style="color: var(--success); font-weight: 700;">Ksh 0.00</span>
+              </div>
+              <div class="summary-row total">
+                <span>Grand Total</span>
+                <span id="cart-total">Ksh 0.00</span>
+              </div>
+              <button id="checkout-btn" class="checkout-btn" disabled>
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="white" stroke-width="2" fill="none"><path d="M20 6L9 17l-5-5"/></svg>
+                Complete Checkout
+              </button>
+            </div>
+            
+          </div>
+          
+        </div>
+        
+        <!-- ============ TAB 2: INVENTORY SCREEN ============ -->
+        <div id="screen-inventory" class="screen-view">
+          <div class="inventory-panel">
+            <div class="screen-header">
+              <h2 class="panel-title">Spare Parts Registry</h2>
+              <div class="action-buttons">
+                <button id="add-product-btn" class="btn btn-primary">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add New Spare
+                </button>
+              </div>
+            </div>
+            
+            <div class="catalog-controls">
+              <div class="search-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="inventory-search" class="search-input" placeholder="Search inventory by name, SKU, or category...">
+              </div>
+              <select id="inventory-category-filter" class="category-filter">
+                <option value="ALL">All Categories</option>
+              </select>
+              <select id="inventory-model-filter" class="category-filter">
+                <option value="ALL">All Bike Models</option>
+                <option value="Bajaj Boxer 100">Bajaj Boxer 100</option>
+                <option value="Bajaj Boxer 150">Bajaj Boxer 150</option>
+                <option value="Bajaj Boxer 100 / 150">Bajaj Boxer 100 / 150</option>
+              </select>
+              <select id="inventory-stock-filter" class="category-filter">
+                <option value="ALL">All Stock Levels</option>
+                <option value="LOW">Low Stock Alert</option>
+                <option value="OUT">Out of Stock</option>
+              </select>
+            </div>
+            
+            <div class="table-wrapper">
+              <table class="data-table" id="inventory-table">
+                <thead>
+                  <tr>
+                    <th>Photo</th>
+                    <th>SKU / Barcode</th>
+                    <th>Spare Name</th>
+                    <th>Category</th>
+                    <th>Bike Model</th>
+                    <th>Unit Cost</th>
+                    <th>Unit Price</th>
+                    <th>Stock Qty</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-table-body">
+                  <!-- Dynamically populated table rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- ============ TAB 3: SALES LOG SCREEN ============ -->
+        <div id="screen-sales" class="screen-view">
+          <div class="sales-panel">
+            <div class="screen-header">
+              <h2 class="panel-title">Completed Transactions Log</h2>
+              <div class="action-buttons">
+                <button id="download-sales-pdf-btn" class="btn btn-secondary">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                  Export Report (PDF)
+                </button>
+              </div>
+            </div>
+            
+            <div class="catalog-controls">
+              <div class="search-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="sales-search" class="search-input" placeholder="Search sales by receipt ID, item name, or payment...">
+              </div>
+            </div>
+            
+            <div class="table-wrapper">
+              <table class="data-table" id="sales-table">
+                <thead>
+                  <tr>
+                    <th>Receipt ID</th>
+                    <th>Date / Time</th>
+                    <th>Items Sold</th>
+                    <th>Subtotal</th>
+                    <th>Discount</th>
+                    <th>Grand Total</th>
+                    <th>Paid</th>
+                    <th>Method</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-table-body">
+                  <!-- Dynamically populated sales log -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- ============ TAB 4: DASHBOARD / ANALYTICS ============ -->
+        <div id="screen-dashboard" class="screen-view">
+          <div class="dashboard-panel">
+            <div class="screen-header">
+              <h2 class="panel-title">Business Intelligence Dashboard</h2>
+              <div class="action-buttons">
+                <button id="download-dashboard-pdf-btn" class="btn btn-secondary">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                  Export Report (PDF)
+                </button>
+              </div>
+            </div>
+            
+            <!-- Dashboard Stats Grid -->
+            <div class="metrics-grid">
+              <div class="metric-card orange">
+                <span class="metric-title">Gross Revenue</span>
+                <span class="metric-value" id="dash-revenue">Ksh 0.00</span>
+                <span class="metric-desc">Lifetime accumulated sales</span>
+              </div>
+              <div class="metric-card teal">
+                <span class="metric-title">Net Profit</span>
+                <span class="metric-value" id="dash-profit">Ksh 0.00</span>
+                <span class="metric-desc">Revenue minus product costs</span>
+              </div>
+              <div class="metric-card success">
+                <span class="metric-title">Total Sales Logs</span>
+                <span class="metric-value" id="dash-sales-count">0</span>
+                <span class="metric-desc">Total checkout transactions completed</span>
+              </div>
+              <div class="metric-card warning" id="dash-low-stock-card" style="cursor: pointer;">
+                <span class="metric-title">Low Stock Alerts</span>
+                <span class="metric-value" id="dash-low-stock-count">0</span>
+                <span class="metric-desc">Items below minimum stock threshold</span>
+              </div>
+            </div>
+            
+            <!-- Charts Section -->
+            <div class="charts-section">
+              <div class="chart-card">
+                <div class="chart-header">
+                  <span class="chart-title">Daily Sales Graph (Last 7 Days)</span>
+                </div>
+                <div id="chart-svg-container" style="flex-grow:1; display:flex; align-items:center; justify-content:center;">
+                  <!-- Dynamically rendered SVG analytics line-chart -->
+                </div>
+              </div>
+              
+              <div class="chart-card">
+                <div class="chart-header">
+                  <span class="chart-title">Top Selling Spares</span>
+                </div>
+                <div class="top-products-list" id="dash-top-products">
+                  <!-- Dynamically list top products -->
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        
+        <!-- ============ TAB 5: SETTINGS SCREEN ============ -->
+        <div id="screen-settings" class="screen-view">
+          <div class="settings-panel">
+            
+            <div class="settings-section">
+              <h3 class="settings-section-title">Shop Details</h3>
+              <form id="settings-shop-form" onsubmit="event.preventDefault();">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="set-shop-name">Shop Name</label>
+                    <input type="text" id="set-shop-name" class="form-control" value="Armstrong Motos" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="set-shop-currency">Currency Symbol</label>
+                    <input type="text" id="set-shop-currency" class="form-control" value="Ksh" required>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="set-shop-address">Receipt Address Header</label>
+                    <input type="text" id="set-shop-address" class="form-control" value="Industrial Area, Enterprise Road, Nairobi" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="set-shop-phone">Contact Phone</label>
+                    <input type="text" id="set-shop-phone" class="form-control" value="+254 700 000 000" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="set-low-stock-alert">Low Stock Level Alert Value</label>
+                    <input type="number" id="set-low-stock-alert" class="form-control" value="5" min="1" required>
+                  </div>
+                </div>
+                <button id="save-shop-settings-btn" class="btn btn-primary" style="margin-top: 1.25rem;">
+                  Save Shop Profile
+                </button>
+              </form>
+            </div>
+            
+            <div class="settings-section">
+              <h3 class="settings-section-title">Data Backup (JSON Database Portability)</h3>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;">
+                Keep your business sales data safe. Since Armstrong Motos POS runs locally on your browser database, exporting a backup is highly recommended before clearing browser cookies or changing computers.
+              </p>
+              <div class="backup-controls">
+                <button id="export-backup-btn" class="btn btn-primary">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="white" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                  Export Backup Database (.json)
+                </button>
+                
+                <button id="import-backup-trigger-btn" class="btn btn-secondary">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="white" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                  Import Backup File
+                </button>
+                <input type="file" id="import-backup-file" style="display: none;" accept=".json">
+              </div>
+            </div>
+            
+            <div class="settings-section" style="border-color: rgba(239, 68, 68, 0.4);">
+              <h3 class="settings-section-title" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.2);">Danger Zone</h3>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                Clearing the database deletes all products, sales records, and custom settings stored inside this browser. This action is irreversible. Make sure you have exported a JSON backup first.
+              </p>
+              <button id="reset-db-btn" class="btn btn-danger">
+                Reset & Wipe All POS Data
+              </button>
+            </div>
+            
+          </div>
+        </div>
+        
+      </div>
+    </main>
+  </div>
+  
+  <!-- ==================== MODALS ==================== -->
+  
+  <!-- 1. ADD / EDIT PRODUCT MODAL -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="product-modal-title">Add New Spare Part</h3>
+        <button class="modal-close-btn" style="font-size:0.95rem; font-weight:500; display:flex; align-items:center; gap:0.25rem; background:none; border:none; cursor:pointer;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="product-form" onsubmit="event.preventDefault();">
+          <input type="hidden" id="prod-id">
+          
+          <!-- Image selection / Webcam upload -->
+          <div class="image-input-container">
+            <div class="image-preview-box" id="prod-img-preview">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div class="image-ops">
+              <button type="button" id="camera-capture-trigger-btn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.45rem 0.75rem;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Snap with Webcam
+              </button>
+              <button type="button" id="file-upload-trigger-btn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.45rem 0.75rem;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M12 3v12M8 7l4-4 4 4"/></svg>
+                Upload File
+              </button>
+              <input type="file" id="prod-file-input" style="display: none;" accept="image/*">
+            </div>
+          </div>
+          
+          <!-- Product Info fields -->
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label for="prod-name">Spare Name</label>
+              <input type="text" id="prod-name" class="form-control" placeholder="e.g. Spark Plug NGK D8TC" required>
+            </div>
+            
+            <div class="form-group full-width">
+              <label for="prod-model">Compatible Bike Model(s)</label>
+              <input type="text" id="prod-model" class="form-control" placeholder="e.g. Bajaj Boxer 100 / 150" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="prod-sku">SKU Code (Auto-generates if empty)</label>
+              <input type="text" id="prod-sku" class="form-control" placeholder="e.g. AM-10023" style="font-family: var(--font-mono);">
+            </div>
+            
+            <div class="form-group">
+              <label for="prod-category">Category</label>
+              <select id="prod-category" class="form-control" required>
+                <option value="Engine">Engine Spares</option>
+                <option value="Braking">Braking & Cables</option>
+                <option value="Suspension">Suspension & Frame</option>
+                <option value="Electrical">Electrical Parts</option>
+                <option value="Tyres">Tyres & Wheels</option>
+                <option value="Lubes">Lubricants & Fluids</option>
+                <option value="Accessories">Body & Accessories</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="prod-cost">Unit Cost price (Buy Price)</label>
+              <input type="number" id="prod-cost" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="prod-price">Retail Selling Price</label>
+              <input type="number" id="prod-price" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="prod-stock">Current Stock Quantity</label>
+              <input type="number" id="prod-stock" class="form-control" placeholder="0" min="0" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="prod-min-stock">Min Stock (Low Stock Alert)</label>
+              <input type="number" id="prod-min-stock" class="form-control" value="5" min="1" required>
+            </div>
+          </div>
+          
+          <!-- Barcode SVG rendering block -->
+          <div id="modal-barcode-container" style="display: none; align-items: center; justify-content: center; background-color: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.5rem; margin-top: 1rem;">
+            <svg id="modal-barcode"></svg>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary modal-cancel-btn">Cancel</button>
+        <button id="save-product-submit" class="btn btn-primary">Save Spare Part</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="camera-modal">
+    <div class="modal-content" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Capture Product Photo</h3>
+        <button class="modal-close-btn" style="font-size:0.95rem; font-weight:500; display:flex; align-items:center; gap:0.25rem; background:none; border:none; cursor:pointer;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+      </div>
+      <div class="modal-body" style="padding: 1rem;">
+        <div class="camera-preview-wrapper">
+          <video id="camera-video" class="camera-video" autoplay playsinline></video>
+          <div class="camera-overlay-line"></div>
+        </div>
+        <canvas id="camera-canvas" style="display: none;"></canvas>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button id="camera-close-btn" class="btn btn-secondary">Close Camera</button>
+        <button id="camera-snap-btn" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+          Take Snap
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="receipt-modal">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Receipt Generated</h3>
+        <button class="modal-close-btn" style="font-size:0.95rem; font-weight:500; display:flex; align-items:center; gap:0.25rem; background:none; border:none; cursor:pointer;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+      </div>
+      <div class="modal-body" style="background-color: var(--bg-tertiary); padding: 1.25rem;">
+        
+        <!-- Thermal Receipt Box -->
+        <div class="receipt-paper" id="receipt-print-area">
+          <div class="receipt-header">
+            <span class="receipt-logo" id="rec-shop-name">Armstrong Motos</span>
+            <div style="font-size: 0.75rem; margin-top: 0.25rem;" id="rec-shop-addr">Industrial Area, Nairobi</div>
+            <div style="font-size: 0.75rem;" id="rec-shop-phone">Tel: +254 700 000 000</div>
+          </div>
+          
+          <div class="receipt-divider"></div>
+          
+          <div style="font-size: 0.75rem; line-height: 1.4;">
+            <div><b>Receipt #:</b> <span id="rec-id">TRX-00000</span></div>
+            <div><b>Date:</b> <span id="rec-date">2026-07-01 12:00</span></div>
+            <div><b>Payment:</b> <span id="rec-pay">Cash</span></div>
+          </div>
+          
+          <div class="receipt-divider"></div>
+          
+          <div class="receipt-grid" id="rec-items-grid">
+            <!-- Dynamic Receipt Items -->
+          </div>
+          
+          <div class="receipt-divider"></div>
+          
+          <div class="receipt-grid">
+            <div class="receipt-row">
+              <span style="font-weight: 700;">Subtotal</span>
+              <span id="rec-subtotal">Ksh 0.00</span>
+            </div>
+            <div class="receipt-row">
+              <span style="font-weight: 700;">Discount</span>
+              <span id="rec-discount">Ksh 0.00</span>
+            </div>
+            <div class="receipt-row" style="font-size: 1.15rem; font-weight: 700; border-top: 1px dashed black; padding-top: 0.25rem; margin-top: 0.25rem;">
+              <span>TOTAL DUE</span>
+              <span id="rec-total">Ksh 0.00</span>
+            </div>
+            <div class="receipt-row" style="font-size: 0.8rem; margin-top: 0.25rem;">
+              <span>Amount Paid</span>
+              <span id="rec-paid">Ksh 0.00</span>
+            </div>
+            <div class="receipt-row" style="font-size: 0.8rem;">
+              <span>Change Due</span>
+              <span id="rec-change">Ksh 0.00</span>
+            </div>
+          </div>
+          
+          <div class="receipt-divider"></div>
+          
+          <div style="text-align: center; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.5rem;">
+            Thank you for shopping at Armstrong Motos!<br>
+            Quality Spares for Safe Rides.
+          </div>
+          
+          <div class="receipt-barcode">
+            <svg id="receipt-barcode-svg"></svg>
+          </div>
+        </div>
+        
+      </div>
+      <div class="modal-footer">
+        <button id="print-receipt-btn" class="btn btn-secondary">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+          Print Receipt
+        </button>
+        <button id="close-receipt-btn" class="btn btn-primary">Done / New Sale</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Overlay -->
+  <div id="toast-container"></div>
+  
+  <!-- Main Controller logic -->
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
